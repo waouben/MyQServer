@@ -50,7 +50,7 @@ public:
         MySocketServer(QObject *parent = 0);
 
 protected:
-    void incomingConnection(int socketDescriptor);
+    void incomingConnection(qintptr socketDescriptor);
 
 };
 
