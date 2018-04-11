@@ -47,7 +47,7 @@ MySocketServer::MySocketServer(QObject *parent)
 
 }
 
-void MySocketServer::incomingConnection(int socketDescriptor)
+void MySocketServer::incomingConnection(qintptr socketDescriptor)
 {
     cout << "(II) Launching the Network monitor process" << endl;
 
