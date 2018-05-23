@@ -126,10 +126,9 @@ public:
     int get_byte_envoi();
 
     void new_rq_recu();
-    void new_rq_traite();
     void new_error(int error);
-    void new_client();
-    void new_byte_recu(int);
+    void new_client();          //a faire
+    void new_byte_recu(int);    //a faire
     void new_byte_envoi(int);
     void new_rq(Requete *);
     void new_fichier(QString);
@@ -137,6 +136,7 @@ public:
     Page affiche();
     void clean();
 private:
+    void new_rq_traite();
     int rq_recu;
     int rq_traite;
     int nb_client;

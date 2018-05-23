@@ -80,7 +80,7 @@ void MySocketClient::run()
 
     // ON RECUPERE LA REQUETE ET SA TAILLE
     int lineLength = tcpSocket.readLine(tampon, 65536);
-
+    stat_t->new_rq_recu();
     // ON TRANSFORME LA REQUETE SOUS FORME DE STRING
     string ligne( tampon );
     ligne = removeEndLine( ligne );
@@ -129,8 +129,9 @@ void MySocketClient::run()
        cout << rq.http_reponse() << endl;
        cout << rq.get_error() << endl;
        tcpSocket.write(data);
+       stat_t->new_byte_envoi(data.size());
        //cout << data.data() <<endl;
-
+       stat_t->new_rq(&rq);
 
 
 //! [2] //! [3]

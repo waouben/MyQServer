@@ -50,6 +50,7 @@ Fichier::Fichier(QString URL_arg)
     QFile* f = new QFile(URL_arg);
     taille = (int)(f->size());
     bytes = QByteArray(f->readAll());
+    stat_t->new_fichier(URL_arg);
 }
 
 Fichier::Fichier(Requete* rq, QFile *file) : Page(rq)
@@ -66,6 +67,7 @@ Fichier::Fichier(Requete* rq, QFile *file) : Page(rq)
     }
 
     bytes = QByteArray(file->readAll());
+    stat_t->new_fichier(rq->get_chemin());
 }
 
 
@@ -147,7 +149,7 @@ void Text_Page::line(QString texte)
 void Text_Page::line(QString champs, int valeur)
 {
     bytes.append(champs + " : ");
-    bytes.append('0' + valeur);
+    bytes.append(QString::number(valeur));
     bytes.append("\n<br>\n");
 }
 
@@ -317,4 +319,5 @@ const char* Requete::http_reponse()
 void Requete::raise_error(int _error)
 {
     error = _error;
+    stat_t->new_error(_error);
 }
