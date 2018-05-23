@@ -46,7 +46,7 @@ using namespace std;
 #include <QFile>
 #include <QDir>
 
-#include "Objects.h"
+//#include "Objects.h"
 
 class MySocketClient : public QThread
 {

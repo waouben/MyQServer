@@ -36,6 +36,7 @@
 ****************************************************************************/
 
 #include "MySocketClient.h"
+#include "classes.hpp"
 
 #include <QtNetwork>
 
@@ -118,39 +119,33 @@ void MySocketClient::run()
    cout << " - isFile :          : " << f.exists() << endl;
    cout << " - isDirectory       : " << d.exists() << endl;
 
-   if( f.exists() == false &&  d.exists() == false ){
-       // ERREUR 404 LE FICHIER N'EXISTE PAS...
 
-   }else if( d.exists() == true ){
-       // C'EST UN REPERTOIRE !
+       Requete rq(cmde, str);
 
-   }else if( f.exists() == true ){
-       QFile* file = new QFile( str );
-        if (!file->open(QIODevice::ReadOnly))
-        {
-                delete file;
-                return;
-        }
-        tcpSocket.write( file->readAll() );
-        file->close();
 
-   }else{
+       QByteArray data = cache_t->affiche_page(&rq)->get_bytes();
+       //cout << file->readAll().data();
+       tcpSocket.write(rq.http_reponse());
+       cout << rq.http_reponse() << endl;
+       cout << rq.get_error() << endl;
+       tcpSocket.write(data);
 
-   }
+
 
 //! [2] //! [3]
-
-    /*QByteArray block;
+/*
+    QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
+    out.setVersion(QDataStream::Qt_5_10);
     out << (quint16)0;
     out << text;
     out.device()->seek(0);
     out << (quint16)(block.size() - sizeof(quint16));
+
 //! [3] //! [4]
 
-    tcpSocket.write(block);*/
-
+    tcpSocket.write(block);
+*/
     tcpSocket.disconnectFromHost();
     tcpSocket.waitForDisconnected();
     cout << "Finishing MySocketClient::run()" << endl;

@@ -40,6 +40,7 @@
 #include <QMovie>
 
 #include "dialog.h"
+#include "classes.hpp"
 
 #include <iostream>
 using namespace std;

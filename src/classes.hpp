@@ -5,74 +5,82 @@
 #include <cstdlib>
 #include <ctime>
 
+#include <QString>
+#include <QFile>
+#include <QDir>
+#include <QHash>
+
+
+class Requete
+{
+public:
+    Requete(std::string cmde, QString chemin);
+    Requete(std::string cmde, QString _chemin, bool isFile);
+    enum commande{get, stats, cache, info, clear_cache, clear_stats, activ, desactiv};  //Je crois qu'il en manque, nottament pour les erreurs
+    enum commande get_commande();
+    QString get_chemin();
+    long long get_heure();
+    int get_error();
+    const char *http_reponse();
+    void raise_error(int);
+private:
+    enum commande commande_t;
+    int error;
+    QString chemin;
+    time_t heure;
+};
+
 
 
 class Page
 {
 public:
 	enum type{fichier, repertoire, texte};
-	Page(std::string URL);
+    Page();
+    Page(QString URL);
+    Page(Requete* rq);
 	~Page();
-	void* get_bytes();
-	std::string get_name();
+    QByteArray get_bytes();
+    QString get_name();
 	int get_id();
 	time_t get_heure();
 	int get_taille();
-	enum type get_type();
+    enum type get_type();
 protected:
 	enum type type_t;
+    QByteArray bytes;
+    int taille;
 private:
-	std::string nom;
+    QString nom;
+    QString URL;
 	int id;
 	static int next_id;
-	int taille;
-	std::string URL;
-	void* bytes;
 	time_t heure;
 };
 
 class Fichier : public Page
 {
-	Fichier(std::string);
+public:
+    Fichier(QString);
+    Fichier(Requete* rq, QFile* file);
 };
 
 class Repertoire : public Page
 {
-	
+public:
+    Repertoire(std::string);
+    Repertoire(QDir* dir);
 };
 
 class Text_Page : public Page
 {
-	
-};
-
-
-class Requete_old   //A supprimer
-{
 public:
-	Requete_old();
-	Page *recup_page();
-	void* donnee_envoi();
-	int get_heure();
-private:
-	std::string commande;
-	long long heure;
+    Text_Page(QString URL);
 };
 
-class Requete
-{
-public:
-	Requete(std::string commande);
-	enum commande{read, /* exec,*/ ls, stats, cache, info, clear_cache, clear_stats};  //Je crois qu'il en manque, nottament pour les erreurs
-	enum commande get_commande();
-	std::string get_argument();
-	long long get_heure();
-	// A compléter
-private:
-	enum commande commande_t;
-	std::string argument;
-	time_t heure;
-};
+
+
+
 
 class Cache
 {
@@ -80,26 +88,63 @@ public:
 	Cache();
 	~Cache();
 	void clean();
-	Page affiche();
-	void print_name_page(int id);   //temporaire
-	void print_id_page(int id); 	//temporaire
+    Text_Page affiche();
 	int mem_restante();
-	Page* get_page(int id);
-	Page* affiche_page(Requete*);
-	void add_page(Page*);
-	void refresh_page(int id);
+    Page* affiche_page(Requete *);
+    void add_page(Page*, QString URL);
+    void refresh_page(Requete*);
 private:
 	static const int total_mem = 1000000000;   //A voir
-	static const int taille_cache = 2048;
 	int free_mem;
-	struct list_page{
-		Page* pages[taille_cache]; // C'est peut être mieux d'allouer dynamiquement?
-		int oldest;
-		int next;
-	}list_page_t;
+    QString oldest;
+    QString newest;
+    struct list_page{
+        Page* page;
+        QString next;
+        ~list_page(){delete page;}
+    };
+    QHash<QString, list_page*> hash;
+};
+
+class Stat
+{
+public:
+    Stat();
+    ~Stat();
+
+    int get_rq_recu();
+    int get_rq_traite();
+    int get_error(int error);
+    int get_client();
+    int get_byte_recu();
+    int get_byte_envoi();
+
+    void new_rq_recu();
+    void new_rq_traite();
+    void new_error(int error);
+    void new_client();
+    void new_byte_recu(int);
+    void new_byte_envoi(int);
+    void new_rq(Requete *);
+    void new_fichier(QString);
+
+    Page* affiche();
+    void clean();
+private:
+    int rq_recu;
+    int rq_traite;
+    int nb_client;
+    int byte_recu;
+    int byte_envoi;
+
+    QHash<int, int> list_error;
+    QHash<QString, int> list_fichier;
+    QVector<Requete*> *list_rq;
+
 };
 
 int etat_serveur();
 
-
+extern Cache *cache_t;
+extern Stat *stat_t;
 #endif

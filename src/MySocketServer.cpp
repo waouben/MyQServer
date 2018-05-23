@@ -37,6 +37,7 @@
 
 #include "MySocketServer.h"
 #include "MySocketClient.h"
+#include "classes.hpp"
 
 #include <stdlib.h>
 
@@ -44,7 +45,7 @@
 MySocketServer::MySocketServer(QObject *parent)
     : QTcpServer(parent)
 {
-
+    cache_t = new Cache;
 }
 
 void MySocketServer::incomingConnection(qintptr socketDescriptor)
