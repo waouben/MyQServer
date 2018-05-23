@@ -69,13 +69,19 @@ class Repertoire : public Page
 {
 public:
     Repertoire(std::string);
-    Repertoire(QDir* dir);
+    Repertoire(Requete *rq, QDir* dir);
 };
 
 class Text_Page : public Page
 {
 public:
     Text_Page(QString URL);
+    void start_html(QString titre);
+    void end_html();
+    void line(QString);
+    void line(QString, int);
+    void line(QString, QString);
+    void break_line();
 };
 
 
@@ -90,7 +96,7 @@ public:
 	void clean();
     Text_Page affiche();
 	int mem_restante();
-    Page* affiche_page(Requete *);
+    Page affiche_page(Requete *);
     void add_page(Page*, QString URL);
     void refresh_page(Requete*);
 private:
@@ -128,7 +134,7 @@ public:
     void new_rq(Requete *);
     void new_fichier(QString);
 
-    Page* affiche();
+    Page affiche();
     void clean();
 private:
     int rq_recu;

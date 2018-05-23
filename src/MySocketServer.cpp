@@ -46,6 +46,7 @@ MySocketServer::MySocketServer(QObject *parent)
     : QTcpServer(parent)
 {
     cache_t = new Cache;
+    stat_t = new Stat;
 }
 
 void MySocketServer::incomingConnection(qintptr socketDescriptor)

@@ -52,7 +52,7 @@ Page Cache::affiche()
 	//Peut etre redondant avec affiche_page()
 }
 */
-Page* Cache::affiche_page(Requete* rq)
+Page Cache::affiche_page(Requete* rq)
 {
     QFile f(rq->get_chemin());
     QDir d(rq->get_chemin());
@@ -67,44 +67,46 @@ Page* Cache::affiche_page(Requete* rq)
                             // ERREUR 404 LE FICHIER N'EXISTE PAS...
                             rq->raise_error(404);
                             if (hash.contains("erreur_404"))
-                                return hash.value("erreur_404")->page;
+                                return *(hash.value("erreur_404")->page);
                             else
                             {
                                 add_page(new Fichier(rq, new QFile("./public_html/error_404.html")), "erreur_404");
-                                return hash.value("erreur_404")->page;
+                                return *(hash.value("erreur_404")->page);
                             }
 
                         }else if( d.exists() == true ){
                             // C'EST UN REPERTOIRE !
 
                             if (hash.contains(rq->get_chemin()))
-                                return hash.value(rq->get_chemin())->page;
+                                return *(hash.value(rq->get_chemin())->page);
                             else
                             {
-                                add_page(new Repertoire(&d), rq->get_chemin());
-                                return hash.value(rq->get_chemin())->page;
+                                add_page(new Repertoire(rq, &d), rq->get_chemin());
+                                return *(hash.value(rq->get_chemin())->page);
                             }
 
 
                         }else if( f.exists() == true ){
 
                             if (hash.contains(rq->get_chemin()))
-                                return hash.value(rq->get_chemin())->page;
+                                return *(hash.value(rq->get_chemin())->page);
                             else
                             {
                                 add_page(new Fichier(rq, &f), rq->get_chemin());
-                                return hash.value(rq->get_chemin())->page;
+                                return *(hash.value(rq->get_chemin())->page);
                             }
                         }
 						break;
 		case Requete::cache:
+            return affiche();
+            break;
         case Requete::info :
+
+            break;
 		case Requete::stats:
-		
-		
-		
-						return new Text_Page("http://text.org");
-						break;
+
+            return stat_t->affiche();
+            break;
 	}
 }
 
@@ -126,7 +128,7 @@ void Cache::refresh_page(Requete* rq)
         break;
     case Page::repertoire:
         delete hash.value(rq->get_chemin());
-        add_page(new Repertoire(&d), rq->get_chemin());
+        add_page(new Repertoire(rq, &d), rq->get_chemin());
         break;
     default:
         delete hash.value(rq->get_chemin());
@@ -134,6 +136,12 @@ void Cache::refresh_page(Requete* rq)
         break;
     }
 }
+
+Text_Page Cache::affiche()
+{
+
+}
+
 /*
 void Cache::print_name_page(int id)
 {

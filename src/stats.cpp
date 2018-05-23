@@ -21,13 +21,23 @@ Stat::Stat()
 
 Stat::~Stat()
 {
-    clean();
+    qDeleteAll(*list_rq);
     delete list_rq;
 }
 
 void Stat::clean()
 {
+    qDeleteAll(*list_rq);
+    list_rq->clear();
 
+    rq_recu = 0;
+    rq_traite = 0;
+    nb_client = 0;
+    byte_recu = 0;
+    byte_envoi = 0;
+
+    list_error[404] = 0;
+    list_error[500] = 0;
 }
 
 int Stat::get_rq_recu()
@@ -103,3 +113,27 @@ void Stat::new_fichier(QString nom)
     else
         list_fichier.insert(nom, 1);
 }
+
+Page Stat::affiche()
+{
+    Text_Page p("./public_html/private/statistiques.html");
+    p.start_html("Statistiques du serveur");
+
+    p.line("<b>Page de statistiques du serveur</b>");
+    p.break_line();
+    p.line("Nombre de requetes recus", get_rq_recu());
+    p.line("Nombre de requetes traitees", get_rq_traite());
+    p.line("Nombre d'erreurs 404", get_error(404));
+    p.line("Nombre d'erreur 500", get_error(500));
+    p.line("Nombre de clients qui se sont connectes", get_client());
+    p.line("Donnees transmise en octet", get_byte_envoi());
+    p.line("Donnees recues en octet", get_byte_recu());
+
+//A faire la liste des fichiers
+
+
+    p.end_html();
+    return p;
+}
+
+Stat* stat_t;
