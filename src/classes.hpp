@@ -96,17 +96,20 @@ public:
 	void clean();
     Text_Page affiche();
 	int mem_restante();
+    int mem_occupe();
     Page affiche_page(Requete *);
     void add_page(Page*, QString URL);
     void refresh_page(Requete*);
+    void up(QString);
 private:
-	static const int total_mem = 1000000000;   //A voir
+    static const int total_mem = 15000000;   //A voir
 	int free_mem;
     QString oldest;
     QString newest;
     struct list_page{
         Page* page;
         QString next;
+        QString prev;
         ~list_page(){delete page;}
     };
     QHash<QString, list_page*> hash;

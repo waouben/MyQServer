@@ -23,22 +23,30 @@ int Cache::mem_restante()
 	return free_mem;
 }
 
+int Cache::mem_occupe()
+{
+    return total_mem-mem_restante();
+}
+
 void Cache::add_page(Page* page, QString URL)  //Attention j'ai pas codé le fait de revenir au début du tableau
 {
-	if(mem_restante() < page->get_taille())
+
+    while(mem_restante() < page->get_taille())
 	{
         free_mem += hash.value(oldest)->page->get_taille();
         QString temp = oldest;
         oldest = hash.value(oldest)->next;
 
-        delete hash.value(temp)->page;
         delete hash.value(temp);
         hash.remove(temp);
 	}
     struct list_page* new_page = new struct list_page;
     new_page->next = "does not exist yet";
+    new_page->prev = newest;
     new_page->page = page;
     hash.insert(URL, new_page);
+    if(!hash.contains(oldest))
+        oldest = URL;
     if(hash.contains(newest))
     {
         hash.value(newest)->next = URL;
@@ -63,40 +71,49 @@ Page Cache::affiche_page(Requete* rq)
 		//case Page                 //Place réservé pour les erreurs
 
 
-                        if( f.exists() == false &&  d.exists() == false ){
-                            // ERREUR 404 LE FICHIER N'EXISTE PAS...
-                            rq->raise_error(404);
-                            if (hash.contains("erreur_404"))
-                                return *(hash.value("erreur_404")->page);
-                            else
-                            {
-                                add_page(new Fichier(rq, new QFile("./public_html/error_404.html")), "erreur_404");
-                                return *(hash.value("erreur_404")->page);
-                            }
+                if( f.exists() == false &&  d.exists() == false ){
+                    // ERREUR 404 LE FICHIER N'EXISTE PAS...
+                    rq->raise_error(404);
+                    if (hash.contains("erreur_404"))
+                    {
+                        up("erreur_404");
+                        return *(hash.value("erreur_404")->page);
+                    }
+                    else
+                    {
+                        add_page(new Fichier(rq, new QFile("./public_html/error_404.html")), "erreur_404");
+                        return *(hash.value("erreur_404")->page);
+                    }
 
-                        }else if( d.exists() == true ){
-                            // C'EST UN REPERTOIRE !
+                }else if( d.exists() == true ){
+                    // C'EST UN REPERTOIRE !
 
-                            if (hash.contains(rq->get_chemin()))
-                                return *(hash.value(rq->get_chemin())->page);
-                            else
-                            {
-                                add_page(new Repertoire(rq, &d), rq->get_chemin());
-                                return *(hash.value(rq->get_chemin())->page);
-                            }
+                    if (hash.contains(rq->get_chemin()))
+                    {
+                        up(rq->get_chemin());
+                        return *(hash.value(rq->get_chemin())->page);
+                    }
+                    else
+                    {
+                        add_page(new Repertoire(rq, &d), rq->get_chemin());
+                        return *(hash.value(rq->get_chemin())->page);
+                    }
 
 
-                        }else if( f.exists() == true ){
+                }else if( f.exists() == true ){
 
-                            if (hash.contains(rq->get_chemin()))
-                                return *(hash.value(rq->get_chemin())->page);
-                            else
-                            {
-                                add_page(new Fichier(rq, &f), rq->get_chemin());
-                                return *(hash.value(rq->get_chemin())->page);
-                            }
-                        }
-						break;
+                    if (hash.contains(rq->get_chemin()))
+                    {
+                        up(rq->get_chemin());
+                        return *(hash.value(rq->get_chemin())->page);
+                    }
+                    else
+                    {
+                        add_page(new Fichier(rq, &f), rq->get_chemin());
+                        return *(hash.value(rq->get_chemin())->page);
+                    }
+                }
+                break;
 		case Requete::cache:
             return affiche();
             break;
@@ -137,8 +154,44 @@ void Cache::refresh_page(Requete* rq)
     }
 }
 
+void Cache::up(QString URL)
+{
+    if (URL == newest)
+        return;
+    QString temp_prev = hash.value(URL)->prev;
+    QString temp_next = hash.value(URL)->next;
+
+    if (oldest == URL)
+    {
+        hash.value(temp_next)->prev = "Does not exist yet";
+        oldest = temp_next;
+    }
+    else
+    {
+        hash.value(temp_prev)->next = temp_next;
+        hash.value(temp_next)->prev = temp_prev;
+    }
+
+    hash.value(newest)->next = URL;
+    hash.value(URL)->prev = newest;
+    newest = URL;
+    hash.value(URL)->next = "Does not exist yet";
+}
+
 Text_Page Cache::affiche()
 {
+    Text_Page p("./public_html/private/cache.html");
+    p.start_html("Etat du cache");
+
+    p.line("<b>Etat du cache</b>");
+    p.break_line();
+    p.line("Nombre de pages stockées en cache",hash.size());
+    p.line("Memoire occupee en octet", mem_occupe());
+    p.line("Memoire restante en octet", mem_restante());
+
+
+    p.end_html();
+    return p;
 
 }
 
