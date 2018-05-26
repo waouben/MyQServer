@@ -77,7 +77,7 @@ Page Cache::affiche_page(Requete* rq)
 
     Text_Page* p;
 
-    if(!stat_t->get_state())
+    if(!stat_t->get_state() && (rq->get_commande() != Requete::activ))
     {
         rq->raise_error(503);
 
@@ -275,6 +275,10 @@ Page Cache::affiche_page(Requete* rq)
             break;
         case Requete::activ:
             stat_t->activate();
+            return Fichier(rq, &f);
+            break;
+        case Requete::desactiv:
+            stat_t->desactivate();
             return Fichier(rq, &f);
             break;
         case Requete::clear_cache:
