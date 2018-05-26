@@ -50,6 +50,7 @@ Fichier::Fichier(QString URL_arg)
     QFile* f = new QFile(URL_arg);
     taille = (int)(f->size());
     bytes = QByteArray(f->readAll());
+    f->close();
 }
 
 Fichier::Fichier(Requete* rq, QFile *file) : Page(rq)
@@ -66,6 +67,7 @@ Fichier::Fichier(Requete* rq, QFile *file) : Page(rq)
     }
 
     bytes = QByteArray(file->readAll());
+    file->close();
 }
 
 
@@ -318,6 +320,9 @@ const char* Requete::http_reponse()
         break;
     case 404:
         return "HTTP/1.1 404 Not Found\n\n";
+        break;
+    case 503:
+        return "HTTP/1.1 503 Service Unavailable";
         break;
     case 500:
     default:

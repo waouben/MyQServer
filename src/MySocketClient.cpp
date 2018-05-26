@@ -123,6 +123,7 @@ void MySocketClient::run()
 
        Requete rq(cmde, str);
 
+
        if (!stat_t->has_connected(tcpSocket.peerAddress().toString()))
            stat_t->new_client(tcpSocket.peerAddress().toString());
        QByteArray data = cache_t->affiche_page(&rq).get_bytes();

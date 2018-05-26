@@ -12,6 +12,7 @@ Stat::Stat()
     rq_traite = 0;
     byte_recu = 0;
     byte_envoi = 0;
+    actif = true;
 
     list_error[404] = 0;
     list_error[500] = 0;
@@ -34,6 +35,7 @@ void Stat::clean()
     rq_traite = 0;
     byte_recu = 0;
     byte_envoi = 0;
+    activate();
 
     list_error[404] = 0;
     list_error[500] = 0;
@@ -119,6 +121,7 @@ Page Stat::affiche()
     p.line("Nombre de requetes traitees", get_rq_traite());
     p.line("Nombre d'erreurs 404", get_error(404));
     p.line("Nombre d'erreurs 500", get_error(500));
+    p.line("Nombre d'erreurs 503", get_error(503));
     p.line("Nombre de clients qui se sont connectes", get_nb_clients());
     p.line("Donnees transmise en octet", get_byte_envoi());
     p.line("Donnees recues en octet", get_byte_recu());
@@ -199,6 +202,21 @@ QString Stat::affiche_nb_fichier(QString fichier)
 
     retour.append(fichier + '\n');
     return retour;
+}
+
+void Stat::activate()
+{
+    actif = true;
+}
+
+void Stat::desactivate()
+{
+    actif = false;
+}
+
+bool Stat::get_state()
+{
+    return actif;
 }
 
 Stat* stat_t;

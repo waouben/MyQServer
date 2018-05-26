@@ -64,7 +64,16 @@ Page Cache::affiche_page(Requete* rq)
 {
     QFile f(rq->get_chemin());
     QDir d(rq->get_chemin());
+    QFile e503("./public_html/error_503.html");
+
     Text_Page* p;
+
+    if(!stat_t->get_state())
+    {
+        rq->raise_error(503);
+
+        return Fichier(rq, &e503);
+    }
 
     switch(rq->get_commande())
 	{
@@ -163,6 +172,9 @@ Page Cache::affiche_page(Requete* rq)
 
             return stat_t->affiche();
             break;
+        case Requete::activ:
+            stat_t->activate();
+            return Fichier(rq, &f);
 	}
 }
 

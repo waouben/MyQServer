@@ -133,6 +133,7 @@ public:
     bool has_connected(QString addr);
     QString affiche_rq(int i);
     QString affiche_nb_fichier(QString fichier);
+    bool get_state();
 
     void new_rq_recu();
     void new_error(int error);
@@ -141,6 +142,8 @@ public:
     void new_byte_envoi(int);
     void new_rq(Requete);
     void new_fichier(QString);
+    void activate();
+    void desactivate();
 
     Page affiche();
     void clean();
@@ -150,6 +153,7 @@ private:
     int rq_traite;
     int byte_recu;
     int byte_envoi;
+    bool actif;
 
     QHash<int, int> list_error;
     QHash<QString, int> list_fichier;
