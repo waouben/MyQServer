@@ -123,6 +123,7 @@ Page Stat::affiche()
     p.break_line();
     p.line("Nombre de requetes recus", get_rq_recu());
     p.line("Nombre de requetes traitees", get_rq_traite());
+    p.line("Nombre d'erreurs 403", get_error(403));
     p.line("Nombre d'erreurs 404", get_error(404));
     p.line("Nombre d'erreurs 500", get_error(500));
     p.line("Nombre d'erreurs 503", get_error(503));
