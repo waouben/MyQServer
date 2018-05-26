@@ -80,7 +80,8 @@ void MySocketClient::run()
 
     // ON RECUPERE LA REQUETE ET SA TAILLE
     int lineLength = tcpSocket.readLine(tampon, 65536);
-
+    stat_t->new_rq_recu();
+    stat_t->new_byte_recu(lineLength);
     // ON TRANSFORME LA REQUETE SOUS FORME DE STRING
     string ligne( tampon );
     ligne = removeEndLine( ligne );
@@ -123,14 +124,17 @@ void MySocketClient::run()
        Requete rq(cmde, str);
 
 
+       if (!stat_t->has_connected(tcpSocket.peerAddress().toString()))
+           stat_t->new_client(tcpSocket.peerAddress().toString());
        QByteArray data = cache_t->affiche_page(&rq).get_bytes();
        //cout << file->readAll().data();
        tcpSocket.write(rq.http_reponse());
        cout << rq.http_reponse() << endl;
        cout << rq.get_error() << endl;
        tcpSocket.write(data);
+       stat_t->new_byte_envoi(data.size());
        //cout << data.data() <<endl;
-
+       stat_t->new_rq(rq);
 
 
 //! [2] //! [3]

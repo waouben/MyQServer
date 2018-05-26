@@ -50,6 +50,7 @@ Fichier::Fichier(QString URL_arg)
     QFile* f = new QFile(URL_arg);
     taille = (int)(f->size());
     bytes = QByteArray(f->readAll());
+    f->close();
 }
 
 Fichier::Fichier(Requete* rq, QFile *file) : Page(rq)
@@ -66,6 +67,7 @@ Fichier::Fichier(Requete* rq, QFile *file) : Page(rq)
     }
 
     bytes = QByteArray(file->readAll());
+    file->close();
 }
 
 
@@ -147,7 +149,7 @@ void Text_Page::line(QString texte)
 void Text_Page::line(QString champs, int valeur)
 {
     bytes.append(champs + " : ");
-    bytes.append('0' + valeur);
+    bytes.append(QString::number(valeur));
     bytes.append("\n<br>\n");
 }
 
@@ -156,6 +158,11 @@ void Text_Page::line(QString champs, QString valeur)
     bytes.append(champs + " : ");
     bytes.append(valeur + '\n');
     bytes.append("\n<br>\n");
+}
+
+void Text_Page::line_nobreak(QString texte)
+{
+    bytes.append(texte);
 }
 
 void Text_Page::break_line()
@@ -196,6 +203,13 @@ QByteArray Page::get_bytes()
     return bytes;
 }
 
+Requete::Requete()
+{
+    heure = time(NULL);
+    error = 200;
+    chemin = "Unspecified";
+    commande_t = info;
+}
 
 Requete::Requete(string cmde, QString _chemin)
 {
@@ -283,17 +297,17 @@ Requete::Requete(string cmde, QString _chemin, bool isFile)
 }
 
 
-enum Requete::commande Requete::get_commande()
+enum Requete::commande Requete::get_commande() const
 {
     return commande_t;
 }
 
-QString Requete::get_chemin()
+QString Requete::get_chemin() const
 {
     return chemin;
 }
 
-int Requete::get_error()
+int Requete::get_error() const
 {
     return error;
 }
@@ -307,6 +321,12 @@ const char* Requete::http_reponse()
     case 404:
         return "HTTP/1.1 404 Not Found\n\n";
         break;
+    case 503:
+        return "HTTP/1.1 503 Service Unavailable";
+        break;
+    case 403:
+        return "HTTP/1.1 403 Forbidden";
+        break;
     case 500:
     default:
         return "HTTP/1.1 500 Internal Server Error\n\n";
@@ -317,4 +337,5 @@ const char* Requete::http_reponse()
 void Requete::raise_error(int _error)
 {
     error = _error;
+    stat_t->new_error(_error);
 }

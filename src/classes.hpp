@@ -1,26 +1,27 @@
 #ifndef _CLASSES_
 #define _CLASSES_
-#include <QTime>
+
 #include <string>
 #include <cstdlib>
 #include <ctime>
+
 #include <QString>
 #include <QFile>
 #include <QDir>
 #include <QHash>
 #include <QMessageBox>
 
-
 class Requete
 {
 public:
+    Requete();
     Requete(std::string cmde, QString chemin);
     Requete(std::string cmde, QString _chemin, bool isFile);
     enum commande{get, stats, cache, info, clear_cache, clear_stats, activ, desactiv};  //Je crois qu'il en manque, nottament pour les erreurs
-    enum commande get_commande();
-    QString get_chemin();
-    long long get_heure();
-    int get_error();
+    commande get_commande() const;
+    QString get_chemin() const;
+    long long get_heure() const;
+    int get_error() const;
     const char *http_reponse();
     void raise_error(int);
 private:
@@ -81,6 +82,7 @@ public:
     void line(QString);
     void line(QString, int);
     void line(QString, QString);
+    void line_nobreak(QString);
     void break_line();
 };
 
@@ -96,17 +98,21 @@ public:
 	void clean();
     Text_Page affiche();
 	int mem_restante();
+    int mem_occupe();
     Page affiche_page(Requete *);
     void add_page(Page*, QString URL);
     void refresh_page(Requete*);
+    void up(QString);
 private:
-	static const int total_mem = 1000000000;   //A voir
+    QString previous_page(QString);
+    static const int total_mem = 10000000;   //A voir
 	int free_mem;
     QString oldest;
     QString newest;
     struct list_page{
         Page* page;
         QString next;
+        QString prev;
         ~list_page(){delete page;}
     };
     QHash<QString, list_page*> hash;
@@ -121,31 +127,38 @@ public:
     int get_rq_recu();
     int get_rq_traite();
     int get_error(int error);
-    int get_client();
     int get_byte_recu();
     int get_byte_envoi();
+    int get_nb_clients();
+    bool has_connected(QString addr);
+    QString affiche_rq(int i);
+    QString affiche_nb_fichier(QString fichier);
+    bool get_state();
 
     void new_rq_recu();
-    void new_rq_traite();
     void new_error(int error);
-    void new_client();
+    void new_client(QString addr);
     void new_byte_recu(int);
     void new_byte_envoi(int);
-    void new_rq(Requete *);
+    void new_rq(Requete);
     void new_fichier(QString);
+    void activate();
+    void desactivate();
 
     Page affiche();
     void clean();
 private:
+    void new_rq_traite();
     int rq_recu;
     int rq_traite;
-    int nb_client;
     int byte_recu;
     int byte_envoi;
+    bool actif;
 
     QHash<int, int> list_error;
     QHash<QString, int> list_fichier;
-    QVector<Requete*> *list_rq;
+    QVector<QString> *adresses;
+    QVector<Requete> *list_rq;
 
 };
 
