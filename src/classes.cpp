@@ -161,7 +161,6 @@ void Text_Page::line(QString champs, QString valeur)
     bytes.append("\n<br>\n");
 }
 
-
 void Text_Page::line_nobreak(QString texte)
 {
     bytes.append(texte);
@@ -325,6 +324,9 @@ const char* Requete::http_reponse()
         break;
     case 503:
         return "HTTP/1.1 503 Service Unavailable";
+        break;
+    case 403:
+        return "HTTP/1.1 403 Forbidden";
         break;
     case 500:
     default:

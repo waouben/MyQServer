@@ -6,8 +6,8 @@
 #include <QInputDialog>
 #include <QtGui>
 #include "classes.hpp"
-using namespace std;
 
+using namespace std;
 QElapsedTimer timer;
 int j = 0;
 int millisecondes = 0;
@@ -35,6 +35,7 @@ int Cache::mem_occupe()
 {
     return total_mem-mem_restante();
 }
+
 
 void Cache::add_page(Page* page, QString URL)  //Attention j'ai pas codé le fait de revenir au début du tableau
 {
@@ -132,22 +133,17 @@ Page Cache::affiche_page(Requete* rq)
                     text = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
                     if (text == NULL)
                     {
-                        cout << "ok3" << endl;
-                        if (hash.contains("./public_html"))
+                        rq->raise_error(403);
+                        if (hash.contains("erreur_403"))
                         {
-                            cout << "ok2" << endl;
-                            up(rq->get_chemin());
-                             return *(hash.value("./public_html")->page);
-
+                            up("erreur_403");
+                            return *(hash.value("erreur_403")->page);
                         }
                         else
                         {
-                            cout << "ok1" << endl;
-                            add_page(new Repertoire(rq, &d), "./public_html");
-                             return *(hash.value("./public_html")->page);
-
+                            add_page(new Fichier(rq, new QFile("./public_html/error_403.html")), "erreur_403");
+                            return *(hash.value("erreur_403")->page);
                         }
-                        cout << "ok4" << endl;
 
                     }
                     }
