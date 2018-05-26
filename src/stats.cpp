@@ -118,7 +118,7 @@ Page Stat::affiche()
     p.line("Nombre de requetes recus", get_rq_recu());
     p.line("Nombre de requetes traitees", get_rq_traite());
     p.line("Nombre d'erreurs 404", get_error(404));
-    p.line("Nombre d'erreur 500", get_error(500));
+    p.line("Nombre d'erreurs 500", get_error(500));
     p.line("Nombre de clients qui se sont connectes", get_nb_clients());
     p.line("Donnees transmise en octet", get_byte_envoi());
     p.line("Donnees recues en octet", get_byte_recu());

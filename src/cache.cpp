@@ -64,6 +64,7 @@ Page Cache::affiche_page(Requete* rq)
 {
     QFile f(rq->get_chemin());
     QDir d(rq->get_chemin());
+    Text_Page* p;
 
     switch(rq->get_commande())
 	{
@@ -122,7 +123,41 @@ Page Cache::affiche_page(Requete* rq)
             return affiche();
             break;
         case Requete::info :
+            if (hash.contains(rq->get_chemin()))
+            {
+                up(rq->get_chemin());
+                return *(hash.value(rq->get_chemin())->page);
+            }
+            else
+            {
+                p = new Text_Page(rq->get_chemin());
+                p->start_html("Bienvenue");
 
+                p->line("<b>Bonjour et bienvenue sur ce serveur</b>");
+                p->line("Faites comme chez vous");
+
+                p->break_line();
+                p->line_nobreak("Le serveur a ete compile le ");
+                p->line_nobreak(__DATE__);
+                p->line_nobreak(" a ");
+                p->line(__TIME__);
+
+                p->break_line();
+                p->break_line();
+                p->line("Voici quelques liens utiles");
+
+                p->break_line();
+                p->line("<a href=\"/private/statistiques.html\">Statistiques du serveur</a>");
+                p->line("<a href=\"/private/cache.html\">Etat du cache</a>");
+                p->line("<a href=\"/\">Retour vers la racine</a>");
+                p->break_line();
+                p->break_line();
+                p->line("Ecrit par Benjamin Simon et Youness Ilam");
+                p->end_html();
+
+                add_page(p, rq->get_chemin());
+                return *(hash.value(rq->get_chemin())->page);
+            }
             break;
 		case Requete::stats:
 
