@@ -276,6 +276,17 @@ Page Cache::affiche_page(Requete* rq)
         case Requete::activ:
             stat_t->activate();
             return Fichier(rq, &f);
+            break;
+        case Requete::clear_cache:
+             clean();
+             return Fichier(rq, &f);
+             break;
+        case Requete::clear_stats:
+             stat_t->clean();
+             return Fichier(rq, &f);
+             break;
+        default:
+            return Text_Page(rq->get_chemin());
     }
 }
 
@@ -283,6 +294,9 @@ void Cache::clean()
 {
     qDeleteAll(hash);
     hash.clear();
+    free_mem = total_mem;
+    newest = "does not exist yet";
+    oldest = "does not exist yet";
 }
 
 void Cache::refresh_page(Requete* rq)
