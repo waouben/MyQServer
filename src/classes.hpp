@@ -1,14 +1,14 @@
 #ifndef _CLASSES_
 #define _CLASSES_
-
+#include <QTime>
 #include <string>
 #include <cstdlib>
 #include <ctime>
-
 #include <QString>
 #include <QFile>
 #include <QDir>
 #include <QHash>
+#include <QMessageBox>
 
 
 class Requete

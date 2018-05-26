@@ -97,6 +97,7 @@ Repertoire::Repertoire(Requete* rq, QDir *dir) : Page(rq)
             bytes.append("/");
         }
         */
+
         bytes.append(dir->entryList().at(i));
         if (f.exists())
             bytes.append("/");
@@ -159,6 +160,7 @@ void Text_Page::line(QString champs, QString valeur)
     bytes.append(valeur + '\n');
     bytes.append("\n<br>\n");
 }
+
 
 void Text_Page::line_nobreak(QString texte)
 {
