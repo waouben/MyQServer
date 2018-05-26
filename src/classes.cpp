@@ -50,7 +50,6 @@ Fichier::Fichier(QString URL_arg)
     QFile* f = new QFile(URL_arg);
     taille = (int)(f->size());
     bytes = QByteArray(f->readAll());
-    stat_t->new_fichier(URL_arg);
 }
 
 Fichier::Fichier(Requete* rq, QFile *file) : Page(rq)
@@ -67,7 +66,6 @@ Fichier::Fichier(Requete* rq, QFile *file) : Page(rq)
     }
 
     bytes = QByteArray(file->readAll());
-    stat_t->new_fichier(rq->get_chemin());
 }
 
 
@@ -160,6 +158,11 @@ void Text_Page::line(QString champs, QString valeur)
     bytes.append("\n<br>\n");
 }
 
+void Text_Page::line_nobreak(QString texte)
+{
+    bytes.append(texte);
+}
+
 void Text_Page::break_line()
 {
     bytes.append("<br>\n");
@@ -198,6 +201,13 @@ QByteArray Page::get_bytes()
     return bytes;
 }
 
+Requete::Requete()
+{
+    heure = time(NULL);
+    error = 200;
+    chemin = "Unspecified";
+    commande_t = info;
+}
 
 Requete::Requete(string cmde, QString _chemin)
 {
@@ -285,17 +295,17 @@ Requete::Requete(string cmde, QString _chemin, bool isFile)
 }
 
 
-enum Requete::commande Requete::get_commande()
+enum Requete::commande Requete::get_commande() const
 {
     return commande_t;
 }
 
-QString Requete::get_chemin()
+QString Requete::get_chemin() const
 {
     return chemin;
 }
 
-int Requete::get_error()
+int Requete::get_error() const
 {
     return error;
 }

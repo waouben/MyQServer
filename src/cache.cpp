@@ -101,7 +101,7 @@ Page Cache::affiche_page(Requete* rq)
 
 
                 }else if( f.exists() == true ){
-
+                    stat_t->new_fichier(rq->get_chemin());
                     if (hash.contains(rq->get_chemin()))
                     {
                         up(rq->get_chemin());
@@ -185,7 +185,7 @@ Text_Page Cache::affiche()
 
     p.line("<b>Etat du cache</b>");
     p.break_line();
-    p.line("Nombre de pages stockées en cache",hash.size());
+    p.line("Nombre de pages stockees en cache",hash.size());
     p.line("Memoire occupee en octet", mem_occupe());
     p.line("Memoire restante en octet", mem_restante());
 

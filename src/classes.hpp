@@ -14,13 +14,14 @@
 class Requete
 {
 public:
+    Requete();
     Requete(std::string cmde, QString chemin);
     Requete(std::string cmde, QString _chemin, bool isFile);
     enum commande{get, stats, cache, info, clear_cache, clear_stats, activ, desactiv};  //Je crois qu'il en manque, nottament pour les erreurs
-    enum commande get_commande();
-    QString get_chemin();
-    long long get_heure();
-    int get_error();
+    commande get_commande() const;
+    QString get_chemin() const;
+    long long get_heure() const;
+    int get_error() const;
     const char *http_reponse();
     void raise_error(int);
 private:
@@ -81,6 +82,7 @@ public:
     void line(QString);
     void line(QString, int);
     void line(QString, QString);
+    void line_nobreak(QString);
     void break_line();
 };
 
@@ -124,16 +126,19 @@ public:
     int get_rq_recu();
     int get_rq_traite();
     int get_error(int error);
-    int get_client();
     int get_byte_recu();
     int get_byte_envoi();
+    int get_nb_clients();
+    bool has_connected(QString addr);
+    QString affiche_rq(int i);
+    QString affiche_nb_fichier(QString fichier);
 
     void new_rq_recu();
     void new_error(int error);
-    void new_client();          //a faire
-    void new_byte_recu(int);    //a faire
+    void new_client(QString addr);
+    void new_byte_recu(int);
     void new_byte_envoi(int);
-    void new_rq(Requete *);
+    void new_rq(Requete);
     void new_fichier(QString);
 
     Page affiche();
@@ -142,13 +147,13 @@ private:
     void new_rq_traite();
     int rq_recu;
     int rq_traite;
-    int nb_client;
     int byte_recu;
     int byte_envoi;
 
     QHash<int, int> list_error;
     QHash<QString, int> list_fichier;
-    QVector<Requete*> *list_rq;
+    QVector<QString> *adresses;
+    QVector<Requete> *list_rq;
 
 };
 
