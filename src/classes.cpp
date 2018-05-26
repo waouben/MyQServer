@@ -39,6 +39,11 @@ Page::~Page()
 {
 }
 
+
+
+
+
+
 Fichier::Fichier(QString URL_arg)
 {
 	type_t = fichier;
@@ -64,14 +69,40 @@ Fichier::Fichier(Requete* rq, QFile *file) : Page(rq)
 }
 
 
-Repertoire::Repertoire(QDir *dir)
+
+
+
+
+
+Repertoire::Repertoire(Requete* rq, QDir *dir) : Page(rq)
 {
     type_t = repertoire;
+    bytes.append("<html>\n<head>\n<title>\n");
+    bytes.append("test");
+    bytes.append("</title>\n</head>\n<body>\n");
     for (int i = 0 ; i < dir->entryList().size() ; i++)
     {
+
+        //QString temp = rq->get_chemin();
+        QString lien = rq->get_chemin() + dir->entryList().at(i) + '/';
+        QDir f(lien);
+        bytes.append("<a href=\"");
+        /*
+        QString ligne = dir->dirName();
+        if (ligne != "public_html")
+        {
+            bytes.append(ligne);
+            bytes.append("/");
+        }
+        */
         bytes.append(dir->entryList().at(i));
-        bytes.append('\n');
+        if (f.exists())
+            bytes.append("/");
+        bytes.append("\">");
+        bytes.append(dir->entryList().at(i));
+        bytes.append("</a>\n<br>\n");
     }
+    bytes.append("</body>\n</html>");
     taille = bytes.size();
 }
 
@@ -82,10 +113,57 @@ Repertoire::Repertoire(std::string)
     type_t = repertoire;
 }
 
-Text_Page::Text_Page(QString URL)
+
+
+
+
+
+
+Text_Page::Text_Page(QString URL) : Page(URL)
 {
     type_t = texte;
 }
+
+void Text_Page::start_html(QString titre)
+{
+    QString html("<html>\n<head>\n<title>");
+    html.append(titre);
+    html.append("</title>\n<body>\n");
+    bytes.append(html);
+}
+
+void Text_Page::end_html()
+{
+    QString html("</body>\n</html>");
+    bytes.append(html);
+}
+
+void Text_Page::line(QString texte)
+{
+    bytes.append(texte);
+    bytes.append("\n<br>\n");
+}
+
+void Text_Page::line(QString champs, int valeur)
+{
+    bytes.append(champs + " : ");
+    bytes.append('0' + valeur);
+    bytes.append("\n<br>\n");
+}
+
+void Text_Page::line(QString champs, QString valeur)
+{
+    bytes.append(champs + " : ");
+    bytes.append(valeur + '\n');
+    bytes.append("\n<br>\n");
+}
+
+void Text_Page::break_line()
+{
+    bytes.append("<br>\n");
+}
+
+
 
 QString Page::get_name()
 {
@@ -127,31 +205,31 @@ Requete::Requete(string cmde, QString _chemin)
     if (cmde == string("GET"))
     {
 
-        if (chemin == "/")
+        if (chemin == "./public_html/info.html")
         {
             commande_t = info;
         }
-        if (chemin == "/private/cache.html")
+        else if (chemin == "./public_html/private/cache.html")
         {
             commande_t = cache;
         }
-        if (chemin == "/private/clear_cache.html")
+        else if (chemin == "./public_html/private/clear_cache.html")
         {
             commande_t = clear_cache;
         }
-        if (chemin == "/private/activate.html")
+        else if (chemin == "./public_html/private/activate.html")
         {
             commande_t = activ;
         }
-        if (chemin == "/private/desactivate.html")
+        else if (chemin == "./public_html/private/desactivate.html")
         {
             commande_t = desactiv;
         }
-        if (chemin == "/private/statistiques.html")
+        else if (chemin == "./public_html/private/statistiques.html")
         {
             commande_t = stats;
         }
-        if (chemin == "/private/clear_stats.html")
+        else if (chemin == "./public_html/private/clear_stats.html")
         {
             commande_t = clear_stats;
         }
@@ -170,31 +248,31 @@ Requete::Requete(string cmde, QString _chemin, bool isFile)
     {
         if (isFile)
         {
-            if (chemin == "/")
+            if (chemin == "./public_html/info.html")
             {
                 commande_t = info;
             }
-            if (chemin == "/private/cache.html")
+            if (chemin == "./public_html/private/cache.html")
             {
                 commande_t = cache;
             }
-            if (chemin == "/private/clear_cache.html")
+            if (chemin == "./public_html/private/clear_cache.html")
             {
                 commande_t = clear_cache;
             }
-            if (chemin == "/private/activate.html")
+            if (chemin == "./public_html/private/activate.html")
             {
                 commande_t = activ;
             }
-            if (chemin == "/private/desactivate.html")
+            if (chemin == "./public_html/private/desactivate.html")
             {
                 commande_t = desactiv;
             }
-            if (chemin == "/private/statistiques.html")
+            if (chemin == "./public_html/private/statistiques.html")
             {
                 commande_t = stats;
             }
-            if (chemin == "/private/clear_stats.html")
+            if (chemin == "./public_html/private/clear_stats.html")
             {
                 commande_t = clear_stats;
             }
@@ -229,6 +307,7 @@ const char* Requete::http_reponse()
     case 404:
         return "HTTP/1.1 404 Not Found\n\n";
         break;
+    case 500:
     default:
         return "HTTP/1.1 500 Internal Server Error\n\n";
         break;

@@ -123,12 +123,13 @@ void MySocketClient::run()
        Requete rq(cmde, str);
 
 
-       QByteArray data = cache_t->affiche_page(&rq)->get_bytes();
+       QByteArray data = cache_t->affiche_page(&rq).get_bytes();
        //cout << file->readAll().data();
        tcpSocket.write(rq.http_reponse());
        cout << rq.http_reponse() << endl;
        cout << rq.get_error() << endl;
        tcpSocket.write(data);
+       //cout << data.data() <<endl;
 
 
 
