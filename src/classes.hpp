@@ -104,7 +104,8 @@ public:
     void refresh_page(Requete*);
     void up(QString);
 private:
-    static const int total_mem = 15000000;   //A voir
+    QString previous_page(QString);
+    static const int total_mem = 10000000;   //A voir
 	int free_mem;
     QString oldest;
     QString newest;

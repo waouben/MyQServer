@@ -107,10 +107,14 @@ Page Cache::affiche_page(Requete* rq)
                         up(rq->get_chemin());
                         return *(hash.value(rq->get_chemin())->page);
                     }
-                    else
+                    else if (f.size() < total_mem)
                     {
                         add_page(new Fichier(rq, &f), rq->get_chemin());
                         return *(hash.value(rq->get_chemin())->page);
+                    }
+                    else
+                    {
+                        return Fichier(rq, &f);
                     }
                 }
                 break;
@@ -189,26 +193,24 @@ Text_Page Cache::affiche()
     p.line("Memoire occupee en octet", mem_occupe());
     p.line("Memoire restante en octet", mem_restante());
 
-
+    p.break_line();
+    p.line("<b>Fichiers en cache du plus recent au plus ancien</b>");
+    p.line_nobreak("<div style=\"height:400; overflow: auto;\">");
+        QString current_page = newest;
+        while (current_page != oldest)
+        {
+            p.line(current_page);
+            current_page = previous_page(current_page);
+        }
+        p.line_nobreak(current_page);
+    p.line_nobreak("</div>");
     p.end_html();
     return p;
 
 }
 
-/*
-void Cache::print_name_page(int id)
+QString Cache::previous_page(QString URL)
 {
-	cout<<list_page_t.pages[id]->get_name()<<"\n";
+    return hash.value(URL)->prev;
 }
-
-void Cache::print_id_page(int id)
-{
-	cout<<list_page_t.pages[id]->get_id()<<"\n";
-}
-
-Page* Cache::get_page(int id)
-{
-	return list_page_t.pages[id];
-}
-*/
 Cache *cache_t;
