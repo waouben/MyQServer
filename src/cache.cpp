@@ -15,7 +15,7 @@ char buf[1024];
  QFile file("password");
 Cache::Cache()
 {
-	free_mem = total_mem;
+    free_mem = total_mem;
     newest = "does not exist yet";
     oldest = "does not exist yet";
 }
@@ -28,7 +28,7 @@ Cache::~Cache()
 
 int Cache::mem_restante()
 {
-	return free_mem;
+    return free_mem;
 }
 
 int Cache::mem_occupe()
@@ -36,18 +36,19 @@ int Cache::mem_occupe()
     return total_mem-mem_restante();
 }
 
+
 void Cache::add_page(Page* page, QString URL)  //Attention j'ai pas codé le fait de revenir au début du tableau
 {
 
     while(mem_restante() < page->get_taille())
-	{
+    {
         free_mem += hash.value(oldest)->page->get_taille();
         QString temp = oldest;
         oldest = hash.value(oldest)->next;
 
         delete hash.value(temp);
         hash.remove(temp);
-	}
+    }
     struct list_page* new_page = new struct list_page;
     new_page->next = "does not exist yet";
     new_page->prev = newest;
@@ -65,7 +66,7 @@ void Cache::add_page(Page* page, QString URL)  //Attention j'ai pas codé le fai
 /*
 Page Cache::affiche()
 {
-	//Peut etre redondant avec affiche_page()
+    //Peut etre redondant avec affiche_page()
 }
 */
 Page Cache::affiche_page(Requete* rq)
@@ -75,8 +76,25 @@ Page Cache::affiche_page(Requete* rq)
     QFile e503("./public_html/error_503.html");
 
     Text_Page* p;
+    QString text1;
+    QString text2;
+    QString text3;
+    QString text4;
+    QFile file("password.txt");
+    QString buf2;
+    if (file.open(QFile::ReadOnly)) {
+        QTextStream flux(&file);
+        while(!flux.atEnd())
+              buf2 += flux.readLine();
+        //qint64 lineLength = file.readLine(buf, sizeof(buf));
 
-    if(!stat_t->get_state())
+    }
+    else
+    {
+          QMessageBox::critical(0,"Erreur","Le fichier "," ne peut être ouvert.");
+    }
+
+    if(!stat_t->get_state() && (rq->get_commande() != Requete::activ))
     {
         rq->raise_error(503);
 
@@ -84,119 +102,104 @@ Page Cache::affiche_page(Requete* rq)
     }
 
     switch(rq->get_commande())
-	{
+    {
         case Requete::get	:
-		//case Page                 //Place réservé pour les erreurs
+        //case Page                 //Place réservé pour les erreurs
 
+            if( f.exists() == false &&  d.exists() == false ){
+                // ERREUR 404 LE FICHIER N'EXISTE PAS...
+                rq->raise_error(404);
+                if (hash.contains("erreur_404"))
+                {
+                    up("erreur_404");
+                    return *(hash.value("erreur_404")->page);
+                }
+                else
+                {
+                    add_page(new Fichier(rq, new QFile("./public_html/error_404.html")), "erreur_404");
+                    return *(hash.value("erreur_404")->page);
+                }
 
-                if( f.exists() == false &&  d.exists() == false ){
-                    // ERREUR 404 LE FICHIER N'EXISTE PAS...
-                    rq->raise_error(404);
-                    if (hash.contains("erreur_404"))
-                    {
-                        up("erreur_404");
-                        return *(hash.value("erreur_404")->page);
+            }else if( d.exists() == true ){
+                // C'EST UN REPERTOIRE !
+                QString tempo = rq->get_chemin();
+                if (tempo.contains("private") ){
+                    bool ok;
+                    QFile file("password.txt");
+                    QString buf;
+                //    char buf[1024];
+                    if (file.open(QFile::ReadOnly)) {
+                        QTextStream flux(&file);
+                        while(!flux.atEnd())
+                              buf += flux.readLine();
+                        //qint64 lineLength = file.readLine(buf, sizeof(buf));
+
                     }
                     else
                     {
-                        add_page(new Fichier(rq, new QFile("./public_html/error_404.html")), "erreur_404");
-                        return *(hash.value("erreur_404")->page);
+                          QMessageBox::critical(0,"Erreur","Le fichier "," ne peut être ouvert.");
                     }
 
-                }else if( d.exists() == true ){
-                    // C'EST UN REPERTOIRE !
-                    QString tempo = rq->get_chemin();
-                    if (tempo.contains("private") ){
-                        bool ok;
-                        QFile file("password.txt");
-                        QString buf;
-                    //    char buf[1024];
-                        if (file.open(QFile::ReadOnly)) {
-                            QTextStream flux(&file);
-                            while(!flux.atEnd())
-                                  buf += flux.readLine();
-                            //qint64 lineLength = file.readLine(buf, sizeof(buf));
 
-                        }
-                        else
-                        {
-                              QMessageBox::critical(0,"Erreur","Le fichier "," ne peut être ouvert.");
-                        }
-
-
-                        if (j == 0)
+                    if (j == 0)
+                {
+                    QString text;
+                    //cout << ok << endl;
+                    while ( (text != buf))
                     {
-                        QString text;
-                        //cout << ok << endl;
-                        while ( (text != buf))
+                    text = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
+                    if (text == NULL)
+                    {
+                        rq->raise_error(403);
+                        if (hash.contains("erreur_403"))
                         {
-                        text = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
-                        if (text == NULL)
-
-                        {
-                            rq->raise_error(403);
-                            if (hash.contains("erreur_403"))
-                            {
-                                up("erreur_403");
-                                return *(hash.value("erreur_403")->page);
-                            }
-                            else
-                            {
-                                add_page(new Fichier(rq, new QFile("./public_html/error_403.html")), "erreur_403");
-                                return *(hash.value("erreur_403")->page);
-                            }
-
-                        }
-                        }
-                            //cout << ok << endl;
-                            timer.start();
-                            if (hash.contains(rq->get_chemin()))
-                        {
-                             j++;
-                            return *(hash.value(rq->get_chemin())->page);
-                        }
-                            else
-                        {
-                             j++;
-                            add_page(new Repertoire(rq, &d), rq->get_chemin());
-                            return *(hash.value(rq->get_chemin())->page);
-                        }
-                        }
-
-
-                        else
-                        {
-                            if (timer.elapsed() < 10000)
-                           {
-                                if (hash.contains(rq->get_chemin()))
-                                {
-                                    return *(hash.value(rq->get_chemin())->page);
-                                }
-                                else
-                                {
-                                    add_page(new Repertoire(rq, &d), rq->get_chemin());
-                                    return *(hash.value(rq->get_chemin())->page);
-                                }
-                            }
-                           else
-                          {
-                                j = j-j;
-                        if (hash.contains(rq->get_chemin()))
-                        {
-                            return *(hash.value(rq->get_chemin())->page);
+                            up("erreur_403");
+                            return *(hash.value("erreur_403")->page);
                         }
                         else
                         {
-                            add_page(new Repertoire(rq, &d), rq->get_chemin());
-                            return *(hash.value(rq->get_chemin())->page);
-                        }
-
-                          }
-
+                            add_page(new Fichier(rq, new QFile("./public_html/error_403.html")), "erreur_403");
+                            return *(hash.value("erreur_403")->page);
                         }
 
                     }
-                   else if (hash.contains(rq->get_chemin()))
+                    }
+                        //cout << ok << endl;
+                        timer.start();
+                        if (hash.contains(rq->get_chemin()))
+                    {
+                         j++;
+                         up(rq->get_chemin());
+                        return *(hash.value(rq->get_chemin())->page);
+                    }
+                        else
+                    {
+                         j++;
+                        add_page(new Repertoire(rq, &d), rq->get_chemin());
+                        return *(hash.value(rq->get_chemin())->page);
+                    }
+                    }
+
+
+                    else
+                    {
+                        if (timer.elapsed() < 10000)
+                       {
+                            if (hash.contains(rq->get_chemin()))
+                            {
+                                up(rq->get_chemin());
+                                return *(hash.value(rq->get_chemin())->page);
+                            }
+                            else
+                            {
+                                add_page(new Repertoire(rq, &d), rq->get_chemin());
+                                return *(hash.value(rq->get_chemin())->page);
+                            }
+                        }
+                       else
+                      {
+                            j = j-j;
+                    if (hash.contains(rq->get_chemin()))
                     {
                         up(rq->get_chemin());
                         return *(hash.value(rq->get_chemin())->page);
@@ -207,9 +210,130 @@ Page Cache::affiche_page(Requete* rq)
                         return *(hash.value(rq->get_chemin())->page);
                     }
 
+                      }
 
-                }else if( f.exists() == true ){
-                    stat_t->new_fichier(rq->get_chemin());
+                    }
+
+                }
+
+                else if (hash.contains(rq->get_chemin()))
+                {
+                    up(rq->get_chemin());
+                    return *(hash.value(rq->get_chemin())->page);
+                }
+                else
+                {
+                    add_page(new Repertoire(rq, &d), rq->get_chemin());
+                    return *(hash.value(rq->get_chemin())->page);
+                }
+
+
+            }else if( f.exists() == true ){
+                stat_t->new_fichier(rq->get_chemin());
+                QString tempo2 = rq->get_chemin();
+                if (tempo2.contains("private") ){
+                    if (j == 0)
+                    {
+                    QFile file("password.txt");
+                    QString buf2;
+                    if (file.open(QFile::ReadOnly)) {
+                        QTextStream flux(&file);
+                        while(!flux.atEnd())
+                              buf2 += flux.readLine();
+                        //qint64 lineLength = file.readLine(buf, sizeof(buf));
+
+                    }
+                    else
+                    {
+                          QMessageBox::critical(0,"Erreur","Le fichier "," ne peut être ouvert.");
+                    }
+                    QString text;
+                    //cout << ok << endl;
+                    while ( (text != buf2))
+                    {
+                    text = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
+                    if (text == NULL)
+
+                    {
+                        rq->raise_error(403);
+                        if (hash.contains("erreur_403"))
+                        {
+                            up("erreur_403");
+                            return *(hash.value("erreur_403")->page);
+                        }
+                        else
+                        {
+                            add_page(new Fichier(rq, new QFile("./public_html/error_403.html")), "erreur_403");
+                            return *(hash.value("erreur_403")->page);
+                        }
+
+                    }
+                    }
+                    j++;
+                    if (hash.contains(rq->get_chemin()))
+                    {
+                        up(rq->get_chemin());
+                        return *(hash.value(rq->get_chemin())->page);
+                    }
+                    else if (f.size() < total_mem)
+                    {
+                        add_page(new Fichier(rq, &f), rq->get_chemin());
+                        return *(hash.value(rq->get_chemin())->page);
+                    }
+                    else
+                    {
+                        return Fichier(rq, &f);
+                        }
+                    }
+                    else
+                    {
+                        if (timer.elapsed() < 10000)
+                       {
+                            if (hash.contains(rq->get_chemin()))
+                            {
+                                up(rq->get_chemin());
+                                return *(hash.value(rq->get_chemin())->page);
+                            }
+                            else if (f.size() < total_mem)
+                            {
+                                add_page(new Fichier(rq, &f), rq->get_chemin());
+                                return *(hash.value(rq->get_chemin())->page);
+                            }
+                            else
+                            {
+                                return Fichier(rq, &f);
+                                }
+                        }
+                       else
+                      {
+                            j = j-j;
+                            if (hash.contains(rq->get_chemin()))
+                            {
+                                up(rq->get_chemin());
+                                return *(hash.value(rq->get_chemin())->page);
+                            }
+                            else if (f.size() < total_mem)
+                            {
+                                add_page(new Fichier(rq, &f), rq->get_chemin());
+                                return *(hash.value(rq->get_chemin())->page);
+                            }
+                            else
+                            {
+                                return Fichier(rq, &f);
+                                }
+
+                      }
+
+                }
+
+                }
+
+                else if(f.permissions() == QFileDevice::ExeOwner)
+                {
+                    
+                }
+                else
+                {
                     if (hash.contains(rq->get_chemin()))
                     {
                         up(rq->get_chemin());
@@ -225,8 +349,10 @@ Page Cache::affiche_page(Requete* rq)
                         return Fichier(rq, &f);
                     }
                 }
-                break;
-		case Requete::cache:
+            }
+            break;
+
+        case Requete::cache:
             return affiche();
             break;
         case Requete::info :
@@ -266,20 +392,122 @@ Page Cache::affiche_page(Requete* rq)
                 return *(hash.value(rq->get_chemin())->page);
             }
             break;
-		case Requete::stats:
-
+        case Requete::stats:
             return stat_t->affiche();
             break;
         case Requete::activ:
+        text1 = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
+                    while ( (text1 != buf2))
+                    {
+                    text1 = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
+                    if (text1 == NULL)
+
+                    {
+                        rq->raise_error(403);
+                        if (hash.contains("erreur_403"))
+                        {
+                            up("erreur_403");
+                            return *(hash.value("erreur_403")->page);
+                        }
+                        else
+                        {
+                            add_page(new Fichier(rq, new QFile("./public_html/error_403.html")), "erreur_403");
+                            return *(hash.value("erreur_403")->page);
+                        }
+
+                    }
+                    }
             stat_t->activate();
             return Fichier(rq, &f);
-	}
+            break;
+        case Requete::desactiv:
+        text2 = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
+                    while ( (text2 != buf2))
+                    {
+                    text2 = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
+                    if (text2 == NULL)
+
+                    {
+                        rq->raise_error(403);
+                        if (hash.contains("erreur_403"))
+                        {
+                            up("erreur_403");
+                            return *(hash.value("erreur_403")->page);
+                        }
+                        else
+                        {
+                            add_page(new Fichier(rq, new QFile("./public_html/error_403.html")), "erreur_403");
+                            return *(hash.value("erreur_403")->page);
+                        }
+
+                    }
+                    }
+            stat_t->desactivate();
+            return Fichier(rq, &f);
+            break;
+        case Requete::clear_cache:
+
+        text3 = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
+            while ( (text3 != buf2))
+            {
+            text3 = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
+            if (text3 == NULL)
+
+            {
+                rq->raise_error(403);
+                if (hash.contains("erreur_403"))
+                {
+                    up("erreur_403");
+                    return *(hash.value("erreur_403")->page);
+                }
+                else
+                {
+                    add_page(new Fichier(rq, new QFile("./public_html/error_403.html")), "erreur_403");
+                    return *(hash.value("erreur_403")->page);
+                }
+
+            }
+            }
+             clean();
+             return Fichier(rq, &f);
+             break;
+        case Requete::clear_stats:
+        text4 = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
+                    while ( (text4 != buf2))
+                    {
+                    text4 = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
+                    if (text4 == NULL)
+
+                    {
+                        rq->raise_error(403);
+                        if (hash.contains("erreur_403"))
+                        {
+                            up("erreur_403");
+                            return *(hash.value("erreur_403")->page);
+                        }
+                        else
+                        {
+                            add_page(new Fichier(rq, new QFile("./public_html/error_403.html")), "erreur_403");
+                            return *(hash.value("erreur_403")->page);
+                        }
+
+                    }
+                    }
+             stat_t->clean();
+             return Fichier(rq, &f);
+             break;
+        default:
+            return Text_Page(rq->get_chemin());
+    }
 }
 
 void Cache::clean()
 {
     qDeleteAll(hash);
     hash.clear();
+    free_mem = total_mem;
+    newest = "does not exist yet";
+    oldest = "does not exist yet";
 }
 
 void Cache::refresh_page(Requete* rq)

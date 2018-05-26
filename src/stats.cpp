@@ -30,6 +30,8 @@ void Stat::clean()
 {
     list_rq->clear();
     adresses->clear();
+    list_error.clear();
+    list_fichier.clear();
 
     rq_recu = 0;
     rq_traite = 0;
@@ -37,8 +39,10 @@ void Stat::clean()
     byte_envoi = 0;
     activate();
 
+    list_error[403] = 0;
     list_error[404] = 0;
     list_error[500] = 0;
+    list_error[503] = 0;
 }
 
 int Stat::get_rq_recu()

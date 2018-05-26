@@ -97,6 +97,7 @@ Repertoire::Repertoire(Requete* rq, QDir *dir) : Page(rq)
             bytes.append("/");
         }
         */
+
         bytes.append(dir->entryList().at(i));
         if (f.exists())
             bytes.append("/");
