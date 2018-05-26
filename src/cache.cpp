@@ -213,19 +213,39 @@ Page Cache::affiche_page(Requete* rq)
 
             }else if( f.exists() == true ){
                 stat_t->new_fichier(rq->get_chemin());
-                if (hash.contains(rq->get_chemin()))
+                QString test = QString(QFileInfo(f).fileName());
+                if(!QString(QFileInfo(f).fileName()).contains('.'))
                 {
-                    up(rq->get_chemin());
-                    return *(hash.value(rq->get_chemin())->page);
-                }
-                else if (f.size() < total_mem)
-                {
-                    add_page(new Fichier(rq, &f), rq->get_chemin());
-                    return *(hash.value(rq->get_chemin())->page);
+                    Text_Page exec(rq->get_chemin());
+                    exec.start_html("Resultat du programme");
+                    QProcess programme;
+                    programme.start(rq->get_chemin());
+                    if(!programme.waitForStarted())
+                        return Text_Page(rq->get_chemin());
+                    programme.closeWriteChannel();
+                    if(!programme.waitForFinished())
+                        return Text_Page(rq->get_chemin());
+
+                    exec.line(QString(programme.readAll()));
+                    exec.end_html();
+                    return exec;
                 }
                 else
                 {
-                    return Fichier(rq, &f);
+                    if (hash.contains(rq->get_chemin()))
+                    {
+                        up(rq->get_chemin());
+                        return *(hash.value(rq->get_chemin())->page);
+                    }
+                    else if (f.size() < total_mem)
+                    {
+                        add_page(new Fichier(rq, &f), rq->get_chemin());
+                        return *(hash.value(rq->get_chemin())->page);
+                    }
+                    else
+                    {
+                        return Fichier(rq, &f);
+                    }
                 }
             }
             break;
