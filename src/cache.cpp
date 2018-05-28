@@ -12,7 +12,7 @@ QElapsedTimer timer;
 int j = 0;
 int millisecondes = 0;
 char buf[1024];
- QFile file("password");
+QFile file("password");
 Cache::Cache()
 {
     free_mem = total_mem;
@@ -73,6 +73,7 @@ Page Cache::affiche_page(Requete* rq)
 {
     QFile f(rq->get_chemin());
     QDir d(rq->get_chemin());
+    QFile e500("./public_html/error_500.html");
     QFile e503("./public_html/error_503.html");
 
     Text_Page* p;
@@ -282,10 +283,16 @@ Page Cache::affiche_page(Requete* rq)
                     QProcess programme;
                     programme.start(rq->get_chemin());
                     if(!programme.waitForStarted())
-                        return Text_Page(rq->get_chemin());
+                    {
+                        rq->raise_error(500);
+                        return Fichier(rq, &e500);
+                    }
                     programme.closeWriteChannel();
                     if(!programme.waitForFinished())
-                        return Text_Page(rq->get_chemin());
+                    {
+                        rq->raise_error(500);
+                        return Fichier(rq, &e500);
+                    }
 
                     exec.line(QString(programme.readAll()));
                     exec.end_html();

@@ -20,7 +20,6 @@ public:
     enum commande{get, stats, cache, info, clear_cache, clear_stats, activ, desactiv};  //Je crois qu'il en manque, nottament pour les erreurs
     commande get_commande() const;
     QString get_chemin() const;
-    long long get_heure() const;
     int get_error() const;
     const char *http_reponse();
     void raise_error(int);

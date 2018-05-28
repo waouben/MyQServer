@@ -80,7 +80,7 @@ Repertoire::Repertoire(Requete* rq, QDir *dir) : Page(rq)
 {
     type_t = repertoire;
     bytes.append("<html>\n<head>\n<title>\n");
-    bytes.append("test");
+    bytes.append(dir->dirName());
     bytes.append("</title>\n</head>\n<body>\n");
     for (int i = 0 ; i < dir->entryList().size() ; i++)
     {
