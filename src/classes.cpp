@@ -250,9 +250,15 @@ Requete::Requete(string cmde, QString _chemin)
         }
         else
             commande_t = get;
+    }else{
+            commande_t = input;
     }
 }
 
+Requete::Requete(string cmde, QString _chemin, QString _body) : Requete(cmde, _chemin)
+{
+    body = _body;
+}
 
 Requete::Requete(string cmde, QString _chemin, bool isFile)
 {
@@ -308,9 +314,23 @@ QString Requete::get_chemin() const
     return chemin;
 }
 
+QString Requete::get_body() const
+{
+    return body;
+}
+
 int Requete::get_error() const
 {
     return error;
+}
+
+bool Requete::switch_to_get()
+{
+    if(get_commande() != input)
+        return false;
+    Requete temp("GET", get_chemin());
+    commande_t = temp.get_commande();
+    return true;
 }
 
 const char* Requete::http_reponse()

@@ -102,15 +102,28 @@ void MySocketClient::run()
 
    cout << "3. : " << file  << endl;
    cout << "4. : '" << ligne << "'" << endl;
-
+/*
+   if(cmde == "POST")
+   {
+       while((tcpSocket.bytesAvailable() > 0))
+           lineLength = tcpSocket.readLine(tampon, 65536);
+   }
+*/
         while( tcpSocket.bytesAvailable() > 0 ){
         int lineLength = tcpSocket.readLine(tampon, 65536);
         if (lineLength != -1 &&  lineLength != 0) {
-                //cout << "C" << lineLength << " :: " << tampon;
+                cout << "C" << lineLength << " :: " << tampon;
         }else if(lineLength != -1 ){
                 cout << "Nothing for the moment !" << endl;
         }
     }
+        QString body;
+
+        if(cmde == "POST"){
+            ligne = string(tampon);
+            ligne = removeEndLine(ligne);
+            body = QString::fromStdString(ligne);
+        }
 
    QString str = tr("./public_html") + tr(file.c_str());
    QFile f( str );
@@ -121,7 +134,7 @@ void MySocketClient::run()
    cout << " - isDirectory       : " << d.exists() << endl;
 
 
-       Requete rq(cmde, str);
+       Requete rq(cmde, str, body);
 
 
        if (!stat_t->has_connected(tcpSocket.peerAddress().toString()))

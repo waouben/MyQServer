@@ -17,16 +17,20 @@ public:
     Requete();
     Requete(std::string cmde, QString chemin);
     Requete(std::string cmde, QString _chemin, bool isFile);
-    enum commande{get, stats, cache, info, clear_cache, clear_stats, activ, desactiv};  //Je crois qu'il en manque, nottament pour les erreurs
+    Requete(std::string cmde, QString _chemin, QString _body);
+    enum commande{get, stats, cache, info, clear_cache, clear_stats, activ, desactiv, input};  //Je crois qu'il en manque, nottament pour les erreurs
     commande get_commande() const;
     QString get_chemin() const;
+    QString get_body() const;
     int get_error() const;
     const char *http_reponse();
     void raise_error(int);
+    bool switch_to_get();
 private:
     enum commande commande_t;
     int error;
     QString chemin;
+    QString body;
     time_t heure;
 };
 

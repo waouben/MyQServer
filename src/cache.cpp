@@ -12,7 +12,7 @@ QElapsedTimer timer;
 int j = 0;
 int millisecondes = 0;
 char buf[1024];
-QFile file("password");
+
 Cache::Cache()
 {
     free_mem = total_mem;
@@ -75,6 +75,7 @@ Page Cache::affiche_page(Requete* rq)
     QDir d(rq->get_chemin());
     QFile e500("./public_html/error_500.html");
     QFile e503("./public_html/error_503.html");
+    QFile mdp("./public_html/private/input.html");
 
     Text_Page* p;
     QString text1;
@@ -235,42 +236,8 @@ Page Cache::affiche_page(Requete* rq)
                 if (tempo2.contains("private") ){
                     if (j == 0)
                     {
-                    QFile file("password.txt");
-                    QString buf2;
-                    if (file.open(QFile::ReadOnly)) {
-                        QTextStream flux(&file);
-                        while(!flux.atEnd())
-                              buf2 += flux.readLine();
-                        //qint64 lineLength = file.readLine(buf, sizeof(buf));
-
-                    }
-                    else
-                    {
-                          QMessageBox::critical(0,"Erreur","Le fichier "," ne peut être ouvert.");
-                    }
-                    QString text;
-                    //cout << ok << endl;
-                    while ( (text != buf2))
-                    {
-                        text = QInputDialog::getText(0, ("password"), ("Enter Password:"), QLineEdit::Password);
-                        if (text == NULL)
-
-                        {
-                            rq->raise_error(403);
-                            if (hash.contains("erreur_403"))
-                            {
-                                up("erreur_403");
-                                return *(hash.value("erreur_403")->page);
-                            }
-                            else
-                            {
-                                add_page(new Fichier(rq, new QFile("./public_html/error_403.html")), "erreur_403");
-                                return *(hash.value("erreur_403")->page);
-                            }
-
-                        }
-                    }
-                    j++;                    
+                        j++;
+                        return Fichier(rq, &mdp);
                     }
                     else if (timer.elapsed() >= 10000)
                         j = 0;
@@ -461,6 +428,24 @@ Page Cache::affiche_page(Requete* rq)
              stat_t->clean();
              return Fichier(rq, &f);
              break;
+        case Requete::input:
+            if (file.open(QFile::ReadOnly)) {
+                QTextStream flux(&file);
+                while(!flux.atEnd())
+                      buf2 += flux.readLine();
+                //qint64 lineLength = file.readLine(buf, sizeof(buf));
+
+            }
+            else
+            {
+                  rq->raise_error(500);
+                  return Fichier(rq, &e500);
+            }
+            if(rq->get_body() == buf2)
+
+
+
+            break;
         default:
             return Text_Page(rq->get_chemin());
     }
