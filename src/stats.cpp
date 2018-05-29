@@ -13,6 +13,7 @@ Stat::Stat()
     byte_recu = 0;
     byte_envoi = 0;
     actif = true;
+    prive = false;
 
     list_error[404] = 0;
     list_error[500] = 0;
@@ -37,12 +38,29 @@ void Stat::clean()
     rq_traite = 0;
     byte_recu = 0;
     byte_envoi = 0;
+    actif = true;
+    prive = false;
     activate();
 
     list_error[403] = 0;
     list_error[404] = 0;
     list_error[500] = 0;
     list_error[503] = 0;
+}
+
+bool Stat::get_prive_autorise()
+{
+    return prive;
+}
+
+void Stat::autoriser()
+{
+    prive = true;
+}
+
+void Stat::interdire()
+{
+    prive = false;
 }
 
 int Stat::get_rq_recu()

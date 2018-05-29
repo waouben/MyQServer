@@ -137,6 +137,7 @@ public:
     QString affiche_rq(int i);
     QString affiche_nb_fichier(QString fichier);
     bool get_state();
+    bool get_prive_autorise();
 
     void new_rq_recu();
     void new_error(int error);
@@ -147,6 +148,8 @@ public:
     void new_fichier(QString);
     void activate();
     void desactivate();
+    void autoriser();
+    void interdire();
 
     Page affiche();
     void clean();
@@ -157,6 +160,7 @@ private:
     int byte_recu;
     int byte_envoi;
     bool actif;
+    bool prive;
 
     QHash<int, int> list_error;
     QHash<QString, int> list_fichier;
